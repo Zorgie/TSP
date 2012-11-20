@@ -3,11 +3,12 @@
 
 #include <stdio.h>
 #include "Graph.h"
+#include "Solving.h"
 
 int main(int argc, char* argv[])
 {
-	Graph g(std::cin);
-	g.solveTSP();
-	g.printTSP();
+	Solving s(std::cin);
+	s.solveTSP();
+	s.printTSP();
 	return 0;
 }
