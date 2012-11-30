@@ -64,6 +64,7 @@ struct Route
 		}
 		void replace(Route* r,Route* p)
 		{
+				std::cout << "what!?!?!?!?" << std::endl;
 				std::cout << "ID: " << ID() << " nextr: " << nextr << " prevr: " << prevr << " r: " << r << " p: " << p << std::endl;
 			if(r == prevr)
 					prevr = p;
