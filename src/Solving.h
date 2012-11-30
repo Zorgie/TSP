@@ -58,14 +58,16 @@ struct Route
 		Route* next(Route* asker)
 		{
 			if (asker == nextr)
+			{
+					//std::cout << "asker: " << asker << " returning: " << prevr << std::endl;
 					return prevr;
+			}
 			else
 					return nextr;
 		}
 		void replace(Route* r,Route* p)
 		{
-				std::cout << "what!?!?!?!?" << std::endl;
-				std::cout << "ID: " << ID() << " nextr: " << nextr << " prevr: " << prevr << " r: " << r << " p: " << p << std::endl;
+				//std::cout << "ID: " << ID() << " Address: " << this << " nextr: " << nextr << " prevr: " << prevr << " replacing: " << r << " with: " << p << std::endl;
 			if(r == prevr)
 					prevr = p;
 			else
@@ -78,7 +80,6 @@ struct Route
 	size_t size;
 	std::vector<int> route;
 	Route* pathStart;
-	Route* pathEnd;
 	std::vector<City> map;
 	// Methods
 	int distance(const int ID1,const int ID2);
