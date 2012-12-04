@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <vector>
+#include "time.h"
 
 class Solving
 {
@@ -10,6 +11,7 @@ public:
 	Solving(std::istream&);
 	~Solving(void);
 	void solveTSP();
+	void solveTSPRandom();
 	void printTSP();
 	void improveTSP();
 private:
@@ -65,6 +67,7 @@ struct Route
 			else
 					return nextr;
 		}
+
 		void replace(Route* r,Route* p)
 		{
 				//std::cout << "ID: " << ID() << " Address: " << this << " nextr: " << nextr << " prevr: " << prevr << " replacing: " << r << " with: " << p << std::endl;
@@ -72,6 +75,10 @@ struct Route
 					prevr = p;
 			else
 					nextr = p;
+		}
+		void printInfo()
+		{
+				//std::cout << "ID: " << ID() << " Address: " << this << " nextr: " << nextr << " prevr: " << prevr << std::endl;
 		}
 };
 
@@ -81,13 +88,31 @@ struct Route
 	std::vector<int> route;
 	Route* pathStart;
 	std::vector<City> map;
+	bool twoOptDone, threeOptDone;
+	clock_t startTime;
+	double timeLimit;
+
 	// Methods
 	int distance(const int ID1,const int ID2);
 	int distance(const City ID1,const City ID2);
 	int totalDistance();
+
 	bool okayCombo(int a, int b, int c, int d);
-	void twoOpt();
-	void switchRoads(int A,int B, int C, int D);
+	bool twoOpt();
+	bool twoOptReverse();
+	bool twoOptRandom();
+	bool switchRoads(int A,int B, int C, int D);
+	
+	bool threeOkayCombo(int a, int b, int c, int d, int e, int f);
+	bool threeOpt();
+	bool threeOptReverse();
+
+	bool threeSwitchRoads(int A,int B, int C, int D, int E, int F);
+	public:
+	void setTime(double limit);
+	private:
+		bool out_of_time();
+
 
 };
 
