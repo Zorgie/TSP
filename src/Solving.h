@@ -11,7 +11,6 @@ public:
 	Solving(std::istream&);
 	~Solving(void);
 	void solveTSP();
-	void solveTSPRandom();
 	void printTSP();
 	void improveTSP();
 private:
@@ -95,7 +94,6 @@ struct Route
 	// Methods
 	int distance(const int ID1,const int ID2);
 	int distance(const City ID1,const City ID2);
-	int totalDistance();
 
 	bool okayCombo(int a, int b, int c, int d);
 	bool twoOpt();
@@ -105,11 +103,15 @@ struct Route
 	
 	bool threeOkayCombo(int a, int b, int c, int d, int e, int f);
 	bool threeOpt();
-	bool threeOptReverse();
 
 	bool threeSwitchRoads(int A,int B, int C, int D, int E, int F);
+
+	bool twoHalfOpt();
+	bool moveCity(Route* city, Route* r1, Route* r2);
+	
 	public:
 	void setTime(double limit);
+	int totalDistance();
 	private:
 		bool out_of_time();
 

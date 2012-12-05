@@ -65,48 +65,6 @@ void Solving::solveTSP()
 
 }
 
-void Solving::solveTSPRandom()
-{
-	// verkar i genomsnitt ge sämre resultat än att starta på 0
-
-	bool* used = new bool[size];
-	for(int i=0;i<size;i++)
-	{used[i] = false;}
-
-	srand(time(0));
-	int randomStart = std::rand()%size;
-	if(randomStart == size)
-		randomStart--;
-
-	//std::cout << "starting at: " << randomStart << std::endl; 
-	pathStart = new Route(randomStart,NULL,NULL);
-	Route* path = pathStart;
-	map[randomStart].pos = pathStart;
-	Route* lastRoute = pathStart;
-	used[randomStart] = true;
-
-	for(int i=1; i<size; i++)
-	{
-		if(out_of_time())
-			return;
-			int best = -1;
-		for(int j=0; j<size; j++)
-		{
-			if(!used[j] && (best == -1 || distance(lastRoute->ID(), j) < distance(lastRoute->ID(), best)))
-				best = j;
-		}
-
-	path->nextr = new Route(best,path,NULL);
-	used[best] = true;
-	path = path->next(path);
-	map[best].pos = path; 
-	lastRoute = path;
-	}
-	
-	path->nextr = pathStart;
-	pathStart->prevr = path;
-
-}
 
 
 
@@ -147,7 +105,7 @@ bool Solving::twoOpt(){
 bool Solving::twoOptReverse(){
 
 	Route* lastRoute = pathStart;
-	Route* tmp = pathStart->next(pathStart);
+	Route* tmp = pathStart->nextr;
 	
 	do {
 		Route* lastInnerRoute=pathStart;
@@ -179,47 +137,7 @@ bool Solving::twoOptReverse(){
 }
 
 
-bool Solving::twoOptRandom(){
-	// less effective than starting at 0
 
-	srand(time(0));
-	int random1 = std::rand()%size;
-	if(random1 == size)
-		random1--;
-
-
-
-	Route* lastRoute = map[random1].pos;
-	Route* tmp = lastRoute->nextr;
-	
-	do {
-		Route* lastInnerRoute=map[random1].pos;
-		Route* tmp2 = lastInnerRoute->prevr;
-			do{
-				if(out_of_time())
-					return false;
-
-				if(okayCombo(lastRoute->ID(),tmp->ID(),tmp2->ID(),lastInnerRoute->ID()))
-				{
-					if(switchRoads(lastRoute->ID(),tmp->ID(),tmp2->ID(),lastInnerRoute->ID()))
-					{
-					return true;
-					}
-				}
-			Route* lol2 = tmp2;
-			tmp2 = tmp2->next(lastInnerRoute);
-			lastInnerRoute = lol2;
-
-			}while(tmp2->ID()!=map[random1].pos->prevr->ID());
-
-	Route* lol = tmp;
-	tmp = tmp->next(lastRoute);
-	lastRoute = lol;
-
-	}while(tmp->ID() != map[random1].pos->nextr->ID());
-	return false;
-
-}
 
 
 
@@ -233,7 +151,7 @@ bool Solving::okayCombo(int a, int b, int c, int d)
 
 bool Solving::switchRoads(int A,int B, int C, int D)
 {// switches the road A-B, C-D to A-C, B-D
-	if((distance(A,B)+distance(C,D))<(distance(A,C)+distance(B,D)))
+	if((distance(A,B)+distance(C,D))<= (distance(A,C)+distance(B,D)))
 	{
 		return false;
 	}
@@ -252,14 +170,34 @@ void Solving::improveTSP()
 {
 	while(!out_of_time())
 	{
+	
+		twoOptReverse();
+		//std::cout << "2-opt " << totalDistance() << std::endl;
+		twoHalfOpt();
+		//std::cout << "2.5-opt " << totalDistance() << std::endl;
+		//threeOpt();
+		//std::cout << "3-opt " << totalDistance() << std::endl;
+/*
 	if(!twoOptReverse())
 	{
 		if(out_of_time())
 			return ;
-		//std::cout << "time: " << ((double)clock()-startTime)/CLOCKS_PER_SEC << std::endl;
 
-		threeOptReverse();
+			twoHalfOpt();
+		if(!threeOpt())
+		{
+		std::cout << "3-opt " << totalDistance() << std::endl;
+			if(out_of_time())
+				return ;
+
+			twoHalfOpt();
+		}
+
+		if(out_of_time())
+			return ;
+
 	}
+	*/
 	}
 
 }
@@ -388,68 +326,6 @@ bool Solving::threeOpt(){
 }
 
 
-bool Solving::threeOptReverse(){
-	/*
-	 * threeopt cases
-	 * Given A-B, C-D, E-F
-	 * Working:
-	 * A-C, B-E, D-F
-	 * A-D, B-E, C-F
-	 * A-D, B-F, C-E
-	 * A-E, B-D, C-F
-	 */
-	
-	Route* fix1 = pathStart;
-	Route* fix2 = pathStart;
-	Route* temp = pathStart->next(pathStart);
-
-	for(int i=0;i<4;i++)
-	{
-		Route* lol = fix1;
-		fix1 = fix1->next(temp);
-		temp = lol;
-		if(i==1)
-			fix2 = fix1;
-
-	}
-
-	Route* lr = pathStart;
-	Route* tmp = pathStart->nextr;
-	do {
-		Route* lir=tmp->next(lr);
-		Route* tmp2 = lir->next(tmp);
-		do{
-			
-			Route* liir= lr;
-			Route* tmp3 = lr->next(tmp); 
-			do{
-				if(out_of_time())
-					return false;
-				if(threeOkayCombo(lr->ID(),tmp->ID(),lir->ID(),tmp2->ID(),liir->ID(),tmp3->ID()))
-				{
-					if(threeSwitchRoads(lr->ID(),tmp->ID(),lir->ID(),tmp2->ID(),tmp3->ID(),liir->ID()))
-						{
-							return true;
-						}
-					}
-				
-				Route* lol3 = tmp3;
-				tmp3 = tmp3->next(liir);
-				liir = lol3;
-			}while(tmp3->ID()!=tmp2->ID());
-
-			Route* lol2 = tmp2;
-			tmp2 = tmp2->next(lir);
-			lir = lol2;
-		}while(tmp2->ID()!=fix2->ID());
-
-	Route* lol = tmp;
-	tmp = tmp->next(lr);
-	lr = lol;
-	}while(tmp->ID() != fix1->ID());
-
-	return false;
-}
 
 
 
@@ -566,4 +442,59 @@ bool Solving::out_of_time()
 if(((double)tmp-startTime)>timeLimit)
 	return true;
 return false;
+}
+
+bool Solving::twoHalfOpt(){
+
+	Route* lastRoute = pathStart;
+	Route* tmp = pathStart->nextr;
+	
+	do {
+		Route* lastInnerRoute=tmp;
+		Route* tmp2 = tmp->next(lastRoute);
+			do{
+				if(out_of_time())
+					return false;
+
+				if(moveCity(tmp,lastInnerRoute,tmp2))
+					return true;	
+
+			
+			Route* lol2 = tmp2;
+			tmp2 = tmp2->next(lastInnerRoute);
+			lastInnerRoute = lol2;
+
+			}while(tmp2->ID()!=pathStart->nextr->ID());
+
+	Route* lol = tmp;
+	tmp = tmp->next(lastRoute);
+	lastRoute = lol;
+
+	}while(tmp->ID() != pathStart->nextr->ID());
+	return false;
+
+}
+bool Solving::moveCity(Route* city, Route* r1, Route* r2)
+{
+	if(city->ID() == r1->ID() || city->ID() == r2->ID() || r1->ID() == r2->ID())
+		return false;
+
+		int oldD= distance(city->ID(),city->prevr->ID()) + distance(city->ID(),city->nextr->ID()) + distance(r1->ID(),r2->ID());
+
+	int newD= distance(r1->ID(),city->ID()) + distance(r2->ID(),city->ID()) + distance(city->nextr->ID(),city->prevr->ID());
+
+	if(oldD<=newD)
+		return false;
+
+
+	//std::cout << "flyttar: " << city->ID() << " till mellan " << r1->ID() << " och " << r2->ID() << std::endl;
+
+	city->nextr->replace(city,city->prevr);
+	city->prevr->replace(city,city->nextr);
+	r1->replace(r2,city);
+	r2->replace(r1,city);
+	city->nextr = r1;
+	city->prevr = r2;
+
+	return true;
 }
