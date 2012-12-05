@@ -1,10 +1,7 @@
 #pragma once
-
-#include <map>
-#include <list>
-#include <stdlib.h>
 #include <iostream>
 #include <cmath>
+#include "time.h"
 
 using namespace std;
 
@@ -14,31 +11,33 @@ class Euclidian
 		double x, y;
 	};
 public:
-	// Constructors, Destructors
-	Euclidian(std::istream& in);
+	Euclidian(std::istream&);
 	~Euclidian(void);
-
-	// Methods
+	void initDistances();
 	void solve();
+	void greedy();
+	void ruinEverything(int count);
+	void opt2Cycle(clock_t start, int timeout);
+	void opt25Cycle(clock_t start, int timeout);
+	void opt3Cycle(clock_t start, int timeout);
 	void print();
-	int* getSolution();
+	long totalDistance();
+
 private:
 	// Methods
-	void initialize();
-	bool opt2Cycle();
-	bool opt2Step(int origin);
-	bool isOpt2Improvement(int* fourTuple);
-	void reverse(int from, int to);
 	double dist(int first, int second);
-	void greedy();
+	bool swapGood(int from, int to);
+	bool insertGood(int from, int to);
+	bool tripleSwapGood(int* tuple);
+	void reverse(int* a, int from, int to);
+	void insert(int* a, int from, int to);
 	// Fields
-	Point* points;
-	map<int, int> solution;
-	map<int, int> backSolution;
-	int** pointsByDistance;
-	size_t size;
 	int K;
-	static const int K_MAX = 15;
-	static const int TWO_OPT_COUNT = 5;
+	static const int K_MAX = 20;
+	static const int OPT2_COUNT = 10;
+	size_t size;
+	int* solution;
+	int** nodeDistance;
+	double** distanceMatrix;
+	Point* points;
 };
-
